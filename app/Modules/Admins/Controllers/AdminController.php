@@ -86,7 +86,6 @@ class AdminController extends Controller
 
         $validatedRequest = $request->validated();
 
-
         $admin = $this->adminService->update($validatedRequest, $id);
 
         return response()->json([

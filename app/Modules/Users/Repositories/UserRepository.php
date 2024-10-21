@@ -26,7 +26,7 @@ class UserRepository
     }
     public function getUser($id)
     {
-        $this->user = $this->user->query()->findOrFail($id);
+        $this->user = $this->user::withoutGlobalScopes()->findOrFail($id);
 
         return $this->user;
     }

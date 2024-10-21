@@ -26,7 +26,7 @@ class AdminRepository
     }
     public function getAdmin($id)
     {
-        $this->admin = $this->admin->query()->findOrFail($id);
+        $this->admin = $this->admin::withoutGlobalScopes()->findOrFail($id);
 
         return $this->admin;
     }

@@ -46,7 +46,8 @@ class Admin extends AuthenticatableBaseModel
 
     protected static function booted()
     {
-        // parent::booted();
+        parent::booted();
+
         static::observe(AdminObserver::class);
     }
 
