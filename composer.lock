@@ -7819,16 +7819,16 @@
         },
         {
             "name": "tur1/laravelmodules",
-            "version": "v1.3.8",
+            "version": "v1.3.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Tur-1/Laravel-Modules.git",
-                "reference": "6faee234105a3ad97a5cb570048ce7eea66e569f"
+                "reference": "754c658a869486d9291cfb06473f81d47b8f6c10"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Tur-1/Laravel-Modules/zipball/6faee234105a3ad97a5cb570048ce7eea66e569f",
-                "reference": "6faee234105a3ad97a5cb570048ce7eea66e569f",
+                "url": "https://api.github.com/repos/Tur-1/Laravel-Modules/zipball/754c658a869486d9291cfb06473f81d47b8f6c10",
+                "reference": "754c658a869486d9291cfb06473f81d47b8f6c10",
                 "shasum": ""
             },
             "require": {
@@ -7855,9 +7855,9 @@
             "description": "A Laravel package for creating modules and pages",
             "support": {
                 "issues": "https://github.com/Tur-1/Laravel-Modules/issues",
-                "source": "https://github.com/Tur-1/Laravel-Modules/tree/v1.3.8"
+                "source": "https://github.com/Tur-1/Laravel-Modules/tree/v1.3.9"
             },
-            "time": "2024-10-21T11:42:32+00:00"
+            "time": "2024-10-21T16:40:36+00:00"
         }
     ],
     "aliases": [],

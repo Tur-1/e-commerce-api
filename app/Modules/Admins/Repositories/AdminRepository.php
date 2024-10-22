@@ -14,11 +14,17 @@ class AdminRepository
     }
     public function getAll()
     {
-        return $this->admin->get();
+        return $this->admin->query()
+            ->withFilters()
+            ->latest('id')
+            ->get();
     }
     public function getPaginatedList($records = 16)
     {
-        return $this->admin->query()->latest('id')->simplePaginate($records);
+        return $this->admin->query()
+            ->withFilters()
+            ->latest('id')
+            ->paginate($records);
     }
     public function createAdmin($validatedRequest)
     {
