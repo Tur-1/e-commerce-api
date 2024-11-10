@@ -2,25 +2,32 @@
 
 namespace App\Modules\Admins\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Tur1\Laravelmodules\Models\BaseModel;
-use App\Modules\Admins\Observers\AdminObserver;
-use App\Modules\Admins\Traits\AdminScopesTrait;
-use App\Modules\Admins\Traits\AdminRelationshipsTrait;
-use App\Modules\Admins\Traits\AdminAttributesTrait;
-use App\Modules\Admins\Database\factories\AdminFactory;
+use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Notifications\Notifiable;
+use Tur1\modules\Models\Authenticatable;
 use App\Modules\Admins\Filters\GenderFilter;
 use App\Modules\admins\Filters\StatusFilter;
-use Illuminate\Notifications\Notifiable;
-use Tur1\Laravelmodules\Models\AuthenticatableBaseModel;
+use App\Modules\Admins\Observers\AdminObserver;
+use App\Modules\Admins\Traits\AdminScopesTrait;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use App\Modules\Admins\Traits\AdminAttributesTrait;
+use App\Modules\Admins\Traits\AdminRelationshipsTrait;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Modules\Admins\Database\factories\AdminFactory;
 
-class Admin extends AuthenticatableBaseModel
+class Admin extends Authenticatable
 {
     use HasFactory,
         Notifiable,
         AdminScopesTrait,
         AdminAttributesTrait,
-        AdminRelationshipsTrait;
+        AdminRelationshipsTrait,
+        HasRoles,
+        HasApiTokens;
+
+    protected $guard_name = 'admin';
 
     protected $fillable = [
         'name',
@@ -42,7 +49,7 @@ class Admin extends AuthenticatableBaseModel
         'remember_token',
     ];
 
-    protected $search = [];
+    protected $search = ['name'];
 
     protected static function booted()
     {
@@ -56,16 +63,23 @@ class Admin extends AuthenticatableBaseModel
             StatusFilter::class
         ];
     }
-    /**
-     * Create a new factory instance for the model.
-     *
-     * @return \Illuminate\Database\Eloquent\Factories\Factory
-     */
-    protected static function newFactory()
+
+    protected function getDefaultGuardName(): string
     {
-        return AdminFactory::new();
+        return 'admin';
     }
 
+    /**
+     * Interact with the admin's password.
+     *
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute
+     */
+    protected function password(): Attribute
+    {
+        return Attribute::make(
+            set: fn($value) => Hash::needsRehash($value) ? Hash::make($value) : $value,
+        );
+    }
     /**
      * Get the attributes that should be cast.
      *

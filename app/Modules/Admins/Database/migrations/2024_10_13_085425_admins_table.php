@@ -24,8 +24,10 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('phone');
-            $table->enum('gender', array_map(fn($case) => $case->value, AdminGenderEnum::cases()));
-            $table->enum('status', array_map(fn($case) => $case->value, AdminStatusEnum::cases()));
+            $table->enum('gender', array_column(AdminGenderEnum::cases(), 'value'))
+                ->default(AdminGenderEnum::Female->value);
+            $table->enum('status', array_column(AdminStatusEnum::cases(), 'value'))
+                ->default(AdminStatusEnum::ACTIVE->value);
             $table->rememberToken();
             $table->timestamps();
         });

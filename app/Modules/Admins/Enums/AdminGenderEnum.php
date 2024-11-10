@@ -13,8 +13,8 @@ enum AdminGenderEnum: string
     public function label(): string
     {
         return match ($this) {
-            self::Male => 'male',
-            self::Female => 'female',
+            self::Male => 'Male',
+            self::Female => 'Female',
         };
     }
 }

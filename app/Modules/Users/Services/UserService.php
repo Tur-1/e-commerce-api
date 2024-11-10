@@ -2,49 +2,67 @@
 
 namespace App\Modules\Users\Services;
 
-use App\Modules\Users\Repositories\UserRepository;
 use App\Modules\Users\Resources\UserListResource;
 use App\Modules\Users\Resources\UserShowResource;
+use App\Modules\Users\Exceptions\UserException;
+use App\Modules\Users\Models\User;
 
 class UserService
 {
-    private $userRepository;
+    private User $user;
 
-    public function __construct(UserRepository $userRepository)
+    public function __construct(User $user)
     {
-        $this->userRepository = $userRepository;
+        $this->user = $user;
     }
 
     public function getAll()
     {
-        return UserListResource::collection($this->userRepository->getAll());
-    }
-    public function getPaginatedList($records = 15)
-    {
-        return UserListResource::collection($this->userRepository->getPaginatedList($records))
-        ->response()
-        ->getData(true);
+        $users = $this->user->query()
+            ->withFilters()
+            ->latest('id')
+            ->get();
+
+        return UserListResource::collection($users);
     }
 
-    public function create($validatedRequest)
+    public function getPaginatedList($perPage = 16)
     {
-        return $this->userRepository->createUser($validatedRequest);
+        $users = $this->user->query()
+            ->withFilters()
+            ->latest('id')
+            ->paginate($perPage);
+
+        return UserListResource::collection($users)
+            ->response()
+            ->getData(true);
     }
 
-    public function show($id)
+    public function createUser($validatedRequest)
     {
-        return UserShowResource::make($this->userRepository->getUser($id));
+        return $this->user->create($validatedRequest);
     }
 
-    public function update($validatedRequest, $id)
+    public function getUser($id)
     {
-        $user = $this->userRepository->updateUser($validatedRequest, $id);
+        $user = $this->user::query()->find($id);
+
+        if (!$user) {
+            throw UserException::notFound();
+        }
+        return UserShowResource::make($user);
+    }
+
+    public function updateUser($validatedRequest, $id)
+    {
+        $user = $this->getUser($id);
+        $user->update($validatedRequest);
 
         return UserShowResource::make($user);
     }
 
-    public function delete($id)
+    public function deleteUser($id)
     {
-        return $this->userRepository->deleteUser($id);
+        return $this->user->where('id', $id)->delete();
     }
 }

@@ -15,12 +15,16 @@ class AdminShowResource extends JsonResource
      */
     public function toArray($request)
     {
+        $role = $this->roles->first();
+
         return [
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
             'phone' => $this->phone,
             'gender' => $this->gender,
+            'role_id' => $role?->id,
+            'permissions' => $this->permissions->pluck('id'),
             'status' => $this->status,
             'created_at' => date_format($this->created_at, 'Y-m-d'),
         ];

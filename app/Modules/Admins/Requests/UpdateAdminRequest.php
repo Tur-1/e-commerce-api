@@ -28,7 +28,10 @@ class UpdateAdminRequest extends FormRequest
             'email' => 'required|email|unique:admins,email,' . $this->id,
             'status' => 'required|in:active,inactive',
             'gender' => 'required|in:male,female',
-            'phone' => 'required',
+            'phone' => 'required|string|max:15',
+            'role_id' => 'nullable|integer|exists:roles,id',
+            'permissions' => 'nullable|array',
+            'permissions.*' => 'exists:permissions,id',
         ];
     }
 }

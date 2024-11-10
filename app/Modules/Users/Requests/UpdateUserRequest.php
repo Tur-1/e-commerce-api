@@ -26,9 +26,10 @@ class UpdateUserRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $this->id,
+            'status' => 'required|in:active,inactive',
             'gender' => 'required|in:male,female',
-            'password' => 'required|min:1',
             'phone' => 'required',
+            'password' => 'sometimes|min:1|confirmed',
         ];
     }
 }

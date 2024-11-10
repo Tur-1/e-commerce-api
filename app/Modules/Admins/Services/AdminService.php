@@ -2,49 +2,78 @@
 
 namespace App\Modules\Admins\Services;
 
-use App\Modules\Admins\Repositories\AdminRepository;
 use App\Modules\Admins\Resources\AdminListResource;
 use App\Modules\Admins\Resources\AdminShowResource;
+use App\Modules\Admins\Exceptions\AdminException;
+use App\Modules\Admins\Models\Admin;
+use App\Modules\Roles\Models\Role;
+use App\Modules\Roles\Services\RoleService;
 
 class AdminService
 {
-    private $adminRepository;
+    private Admin $admin;
 
-    public function __construct(AdminRepository $adminRepository)
+    public function __construct(Admin $admin)
     {
-        $this->adminRepository = $adminRepository;
+        $this->admin = $admin;
     }
 
     public function getAll()
     {
-        return AdminListResource::collection($this->adminRepository->getAll());
+        $admins = $this->admin->query()
+            ->withFilters()
+            ->latest('id')
+            ->get();
+
+        return AdminListResource::collection($admins);
     }
-    public function getPaginatedList($records = 16)
+
+    public function getRoleswithPermissions()
     {
-        return AdminListResource::collection($this->adminRepository->getPaginatedList($records))
+        return (new RoleService(new Role()))->getAll();
+    }
+    public function getPaginatedList($perPage = 16)
+    {
+        $admins = $this->admin->query()
+            ->withFilters()
+            ->latest('id')
+            ->paginate($perPage);
+
+        return AdminListResource::collection($admins)
             ->response()
             ->getData(true);
     }
 
-    public function create($validatedRequest)
+    public function createAdmin($validatedRequest)
     {
-        return $this->adminRepository->createAdmin($validatedRequest);
+        $admin = $this->admin->create($validatedRequest);
+
+        $admin->syncRoles($validatedRequest['role_id']);
+        $admin->syncPermissions($validatedRequest['permissions']);
     }
 
-    public function show($id)
+    public function getAdmin($id)
     {
-        return AdminShowResource::make($this->adminRepository->getAdmin($id));
+        $admin = $this->admin::query()->with('roles.permissions')->find($id);
+
+        if (!$admin) {
+            throw AdminException::notFound();
+        }
+        return AdminShowResource::make($admin);
     }
 
-    public function update($validatedRequest, $id)
+    public function updateAdmin($validatedRequest, $id)
     {
-        $admin = $this->adminRepository->updateAdmin($validatedRequest, $id);
+        $admin = $this->admin::query()->find($id);
+        $admin->update($validatedRequest);
+        $admin->syncRoles($validatedRequest['role_id']);
+        $admin->syncPermissions($validatedRequest['permissions']);
 
         return AdminShowResource::make($admin);
     }
 
-    public function delete($id)
+    public function deleteAdmin($id)
     {
-        return $this->adminRepository->deleteAdmin($id);
+        return $this->admin->where('id', $id)->delete();
     }
 }

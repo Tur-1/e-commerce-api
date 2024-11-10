@@ -21,7 +21,7 @@ class UserShowResource extends JsonResource
             'email' => $this->email,
             'phone' => $this->phone,
             'gender' => $this->gender,
-            'created_at' => date_format($this->created_at, 'Y-m-d'),
+            'status' => $this->status,
         ];
     }
 }

@@ -6,6 +6,7 @@ use Illuminate\Support\Str;
 use App\Modules\Users\Models\User;
 use Illuminate\Support\Facades\Hash;
 use App\Modules\Admins\Enums\AdminGenderEnum;
+use App\Modules\Admins\Enums\AdminStatusEnum;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class UserFactory extends Factory
@@ -20,6 +21,7 @@ class UserFactory extends Factory
             'phone' => fake()->phoneNumber(),
             'password' =>  Hash::make(123456),
             'gender' => fake()->randomElement([AdminGenderEnum::Female, AdminGenderEnum::Male]),
+            'status' => fake()->randomElement([AdminStatusEnum::INACTIVE, AdminStatusEnum::ACTIVE]),
         ];
     }
 }

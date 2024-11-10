@@ -2,29 +2,32 @@
 
 namespace App\Modules\Users\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Tur1\Laravelmodules\Models\BaseModel;
+use Tur1\modules\Models\Authenticatable;
+use App\Modules\Users\Filters\GenderFilter;
+use App\Modules\Users\Filters\StatusFilter;
 use App\Modules\Users\Observers\UserObserver;
 use App\Modules\Users\Traits\UserScopesTrait;
-use App\Modules\Users\Traits\UserRelationshipsTrait;
 use App\Modules\Users\Traits\UserAttributesTrait;
-use App\Modules\Users\Database\factories\UserFactory;
-use Illuminate\Notifications\Notifiable;
-use Tur1\Laravelmodules\Models\AuthenticatableBaseModel;
+use App\Modules\Users\Traits\UserRelationshipsTrait;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class User extends AuthenticatableBaseModel
+class User extends Authenticatable
 {
     use HasFactory,
-        Notifiable,
         UserScopesTrait,
         UserAttributesTrait,
         UserRelationshipsTrait;
+
+    protected $guard_name = 'web';
 
 
     protected $fillable = [
         'name',
         'email',
         'password',
+        'phone',
+        'gender',
+        'status'
     ];
 
 
@@ -38,28 +41,22 @@ class User extends AuthenticatableBaseModel
         'remember_token',
     ];
 
-
-    protected $search = [];
+    protected $search = ['email', 'name'];
 
     protected static function booted()
     {
-        parent::booted();
         static::observe(UserObserver::class);
     }
 
     public static function filters()
     {
-        return [];
+        return [
+            GenderFilter::class,
+            StatusFilter::class
+        ];
     }
-    /**
-     * Create a new factory instance for the model.
-     *
-     * @return \Illuminate\Database\Eloquent\Factories\Factory
-     */
-    protected static function newFactory()
-    {
-        return UserFactory::new();
-    }
+
+
     /**
      * Get the attributes that should be cast.
      *

@@ -2,11 +2,15 @@
 
 namespace App\Modules\Users\Controllers;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Gate;
+use App\Modules\Users\Services\UserService;
+use App\Modules\Admins\Enums\AdminGenderEnum;
+use App\Modules\Admins\Enums\AdminStatusEnum;
+use App\Modules\Users\Models\User;
 use App\Modules\Users\Requests\StoreUserRequest;
 use App\Modules\Users\Requests\UpdateUserRequest;
-use App\Modules\Users\Services\UserService;
 
 class UserController extends Controller
 {
@@ -19,28 +23,44 @@ class UserController extends Controller
 
     public function getAll(Request $request)
     {
-   
-       $users = $this->userService->getAll();
+
+        Gate::authorize('viewAny', User::class);
+
+        $users = $this->userService->getAll();
 
         return response()->json([
             'users' => $users,
         ]);
     }
-
+    public function getGenders()
+    {
+        return response()->json([
+            'genders' => AdminGenderEnum::cases()
+        ]);
+    }
+    public function getStatus()
+    {
+        return response()->json([
+            'status' => AdminStatusEnum::cases(),
+        ]);
+    }
     public function getPaginatedList(Request $request)
     {
-   
-       $users = $this->userService->getPaginatedList();
+
+        Gate::authorize('viewAny', User::class);
+
+        $users = $this->userService->getPaginatedList();
 
         return $users;
     }
- 
+
     public function store(StoreUserRequest $request)
     {
+        Gate::authorize('create', User::class);
 
         $validatedRequest = $request->validated();
 
-        $this->userService->create($validatedRequest);
+        $this->userService->createUser($validatedRequest);
 
         return response()->json([
             'message' => 'user has been created successfully',
@@ -49,8 +69,10 @@ class UserController extends Controller
 
     public function show($id)
     {
-       
-        $user = $this->userService->show($id);
+
+        Gate::authorize('view', User::class);
+
+        $user = $this->userService->getUser($id);
 
         return response()->json([
             'user' => $user,
@@ -59,21 +81,23 @@ class UserController extends Controller
 
     public function update(UpdateUserRequest $request, $id)
     {
-      
+        Gate::authorize('update', User::class);
+
         $validatedRequest = $request->validated();
 
-        $user = $this->userService->update($validatedRequest, $id);
+        $user = $this->userService->updateUser($validatedRequest, $id);
 
         return response()->json([
             'message' => 'user has been updated successfully',
-           'user' => $user,
+            'user' => $user,
         ]);
     }
 
     public function destroy($id)
-    { 
+    {
+        Gate::authorize('delete', User::class);
 
-        $this->userService->delete($id);
+        $this->userService->deleteUser($id);
 
         return response()->json([
             'message' => 'user has been deleted successfully',

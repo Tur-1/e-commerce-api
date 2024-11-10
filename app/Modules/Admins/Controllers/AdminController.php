@@ -2,13 +2,15 @@
 
 namespace App\Modules\Admins\Controllers;
 
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Modules\Admins\Models\Admin;
 use App\Modules\Admins\Enums\AdminGenderEnum;
 use App\Modules\Admins\Enums\AdminStatusEnum;
-use Illuminate\Http\Request;
+use App\Modules\Admins\Services\AdminService;
 use App\Modules\Admins\Requests\StoreAdminRequest;
 use App\Modules\Admins\Requests\UpdateAdminRequest;
-use App\Modules\Admins\Services\AdminService;
+use Illuminate\Support\Facades\Gate;
 
 class AdminController extends Controller
 {
@@ -21,6 +23,7 @@ class AdminController extends Controller
 
     public function getAll(Request $request)
     {
+        Gate::authorize('viewAny', Admin::class);
 
         $admins = $this->adminService->getAll();
 
@@ -32,17 +35,7 @@ class AdminController extends Controller
     public function getGenders()
     {
         return response()->json([
-            'genders' => [
-                [
-                    'name' => 'Female',
-                    'value' => 'female'
-                ],
-                [
-                    'name' => 'Male',
-                    'value' => 'male'
-                ],
-
-            ],
+            'genders' => AdminGenderEnum::cases()
         ]);
     }
     public function getStatus()
@@ -53,18 +46,29 @@ class AdminController extends Controller
     }
     public function getPaginatedList(Request $request)
     {
+        Gate::authorize('viewAny', Admin::class);
 
         $admins = $this->adminService->getPaginatedList();
 
         return $admins;
     }
 
+    public function getRoleswithPermissions()
+    {
+
+        $roles = $this->adminService->getRoleswithPermissions();
+
+        return response()->json([
+            'roles' => $roles
+        ]);
+    }
     public function store(StoreAdminRequest $request)
     {
+        Gate::authorize('create', Admin::class);
 
         $validatedRequest = $request->validated();
 
-        $this->adminService->create($validatedRequest);
+        $this->adminService->createAdmin($validatedRequest);
 
         return response()->json([
             'message' => 'admin has been created successfully',
@@ -73,8 +77,9 @@ class AdminController extends Controller
 
     public function show($id)
     {
+        // Gate::authorize('view', Admin::class);
 
-        $admin = $this->adminService->show($id);
+        $admin = $this->adminService->getAdmin($id);
 
         return response()->json([
             'admin' => $admin,
@@ -83,10 +88,11 @@ class AdminController extends Controller
 
     public function update(UpdateAdminRequest $request, $id)
     {
+        Gate::authorize('update', Admin::class);
 
         $validatedRequest = $request->validated();
 
-        $admin = $this->adminService->update($validatedRequest, $id);
+        $admin = $this->adminService->updateAdmin($validatedRequest, $id);
 
         return response()->json([
             'message' => 'admin has been updated successfully',
@@ -96,8 +102,9 @@ class AdminController extends Controller
 
     public function destroy($id)
     {
+        Gate::authorize('delete', Admin::class);
 
-        $this->adminService->delete($id);
+        $this->adminService->deleteAdmin($id);
 
         return response()->json([
             'message' => 'admin has been deleted successfully',

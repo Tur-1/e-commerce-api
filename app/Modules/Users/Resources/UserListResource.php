@@ -21,6 +21,7 @@ class UserListResource extends JsonResource
             'email' => $this->email,
             'phone' => $this->phone,
             'gender' => $this->gender,
+            'status' => $this->status,
             'created_at' => date_format($this->created_at, 'Y-m-d'),
         ];
     }
